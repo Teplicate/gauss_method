@@ -1,10 +1,18 @@
 class GCD {
     fun findGcd(a: Int, b: Int): Int {
-        return if (a == b)
-            a
-        else if (a > b)
-            findGcd(a - b, b)
-        else findGcd(a, b - a)
+        var x = a
+        var y = b
+
+        while (x != 0 && y != 0) {
+            if (x == y)
+                return x
+//            println("$x, $y")
+            if (x > y)
+                x %= y
+            else if (x < y)
+                y %= x
+        }
+        return x + y
     }
 }
 
@@ -17,19 +25,57 @@ class LCM {
 }
 
 class GaussLinearEquation {
-    fun solve(data: Array<Array<Int>>): Array<Double> {
+    fun solve(data: Array<Array<Int>>): List<Double>? {
         val directPassageRes = performDirectPassage(data)
+        directPassageRes.removeIf { it.all { s -> s == 0 } }
 
-        return emptyArray()
+        if (!checkIfSolvable(directPassageRes))
+            return null
+
+        if (checkIfInfiniteSolutions(directPassageRes))
+            return emptyList()
+
+        return performInversePassage(directPassageRes)
+
     }
 
-    private fun performDirectPassage(data: Array<Array<Int>>): Any {
+    private fun checkIfInfiniteSolutions(directPassageRes: ArrayList<Array<Int>>): Boolean {
+        TODO("implement solutions checking")
+    }
+
+    private fun checkIfSolvable(directPassageRes: ArrayList<Array<Int>>): Boolean {
+        return directPassageRes.any { arr ->
+            arr.filterIndexed { index, i ->
+                if (index != arr.size - 1)
+                    i == 0
+                else true
+            }.isNotEmpty()
+        }
+    }
+
+    private fun performInversePassage(directPassageRes: ArrayList<Array<Int>>): List<Double> {
+        val variables = ArrayList<Double>()
+
+        for (i in directPassageRes.size - 1 downTo 0) {
+            val equation = directPassageRes[i]
+
+            val koeff = equation[equation.size - 1]
+            for (j in 0 until equation.size - 1) {
+
+            }
+
+
+        }
+        return emptyList()
+    }
+
+    private fun performDirectPassage(data: Array<Array<Int>>): ArrayList<Array<Int>> {
         var baseEquation: Array<Int> = data[0]
         var nextEquation: Array<Int>
         val lcm = LCM()
 
         val directPassage = ArrayList<Array<Int>>()
-        for (i in 0..data.size) {
+        for (i in 0 until data.size) {
             directPassage.add(baseEquation)
 
             for (j in i + 1 until data.size) {
@@ -39,10 +85,10 @@ class GaussLinearEquation {
                 val a2 = nextEquation[i]
                 var c = 1
 
-                val leastCommonMultiplier = lcm.findLCM(a1, a2)
+                val leastCommonMultiplier = lcm.findLCM(Math.abs(a1), Math.abs(a2))
 
-                val mult1 = leastCommonMultiplier.toInt() / a1
-                val mult2 = leastCommonMultiplier.toInt() / a2
+                val mult1 = leastCommonMultiplier.toInt() / Math.abs(a1)
+                val mult2 = leastCommonMultiplier.toInt() / Math.abs(a2)
                 if (a1 < 0)
                     c = -1
                 baseCopy.forEachIndexed { index, num ->
@@ -70,10 +116,13 @@ class GaussLinearEquation {
 }
 
 fun main(args: Array<String>) {
+//    val res = GCD().findGcd(4, 2)
+//    println(res)
     val data = arrayOf(
-        arrayOf(4, 2, -1, 1),
-        arrayOf(5, 3, -2, 2),
-        arrayOf(3, 2, -3, 0)
+        arrayOf(1, 3, -2, -2, -3),
+        arrayOf(-1, -2, 1, 2, 2),
+        arrayOf(-2, -1, 3, 1, -2),
+        arrayOf(-3, -2, 3, 3, -1)
     )
 
     GaussLinearEquation().solve(data)

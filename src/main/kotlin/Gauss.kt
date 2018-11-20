@@ -35,12 +35,16 @@ class GaussLinearEquation {
         if (checkIfInfiniteSolutions(directPassageRes))
             return emptyList()
 
-        return performInversePassage(directPassageRes)
+        val vars = performInversePassage(directPassageRes)
 
+        println(vars)
+        return vars
     }
 
     private fun checkIfInfiniteSolutions(directPassageRes: ArrayList<Array<Int>>): Boolean {
-        TODO("implement solutions checking")
+        val lastEquation = directPassageRes[directPassageRes.size - 1]
+        return lastEquation.sliceArray(0..lastEquation.size - 3)
+            .filter { it != 0 }.size == 1
     }
 
     private fun checkIfSolvable(directPassageRes: ArrayList<Array<Int>>): Boolean {
@@ -54,19 +58,28 @@ class GaussLinearEquation {
     }
 
     private fun performInversePassage(directPassageRes: ArrayList<Array<Int>>): List<Double> {
+        val map = HashMap<Int, Double>()
         val variables = ArrayList<Double>()
-
+        var currentMemberIdx = directPassageRes[0].size - 2
         for (i in directPassageRes.size - 1 downTo 0) {
-            val equation = directPassageRes[i]
-
-            val koeff = equation[equation.size - 1]
-            for (j in 0 until equation.size - 1) {
-
+            val equation = directPassageRes[i].map { it.toDouble() }.toMutableList()
+            equation.forEachIndexed { index, number ->
+                if (map[index] != null) {
+                    equation[index] *= map[index]!!
+                }
             }
 
-
+            var freeMember = equation[equation.size - 1]
+            for (j in 0 until equation.size - 1) {
+                if (j != currentMemberIdx)
+                    freeMember += (-1) * equation[j]
+            }
+            val x = freeMember / equation[currentMemberIdx]
+            map.put(currentMemberIdx--, x)
+            variables.add(x)
         }
-        return emptyList()
+        println(map)
+        return variables
     }
 
     private fun performDirectPassage(data: Array<Array<Int>>): ArrayList<Array<Int>> {
@@ -119,10 +132,8 @@ fun main(args: Array<String>) {
 //    val res = GCD().findGcd(4, 2)
 //    println(res)
     val data = arrayOf(
-        arrayOf(1, 3, -2, -2, -3),
-        arrayOf(-1, -2, 1, 2, 2),
-        arrayOf(-2, -1, 3, 1, -2),
-        arrayOf(-3, -2, 3, 3, -1)
+        arrayOf(1, -1, -5),
+        arrayOf(2, 1, -7)
     )
 
     GaussLinearEquation().solve(data)

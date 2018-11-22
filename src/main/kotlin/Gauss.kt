@@ -75,17 +75,32 @@ class GaussLinearEquation {
         return vars
     }
 
-    private fun checkIfInfiniteSolutions(directPassageRes: ArrayList<Array<Int>>): Boolean {
+
+    private fun checkIfInfiniteSolutions(directPassageRes: List<Array<Int>>): Boolean {
         val lastEquation = directPassageRes[directPassageRes.size - 1]
-        return lastEquation.sliceArray(0..lastEquation.size - 3)
-            .filter { it != 0 }.size == 1
+        val slice = lastEquation.sliceArray(0 until lastEquation.size - 1)
+
+//        var s2 = directPassageRes.filter { it[lastEquation.size - 1] == 0 }
+//        s2 = s2.filter {
+//            val m = it.slice(0 until lastEquation.size - 1)
+//                .count { s -> s != 0 }
+//            val s = it.slice(0 until lastEquation.size - 1)
+//                .count { it == 0 }
+//            s > 1 &&
+//        }
+        return slice
+            .count { it != 0 } > 1
+//                || !s2.isEmpty()
     }
 
     private fun checkIfSolvable(directPassageRes: ArrayList<Array<Int>>): Boolean {
-        return directPassageRes.any { arr ->
-            val s = arr.sliceArray(0..arr.size - 2)
-            s.all { it == 0 }
-        }
+        val s = directPassageRes.filter { it[directPassageRes[0].size - 1] == 0 }
+        return s.any { arr ->
+            val s = arr.sliceArray(0 until arr.size - 1)
+            val t = s.all { it == 0 }
+            t
+        } || directPassageRes.map { it.sliceArray(0 until it.size - 1) }
+            .any { it.all { it == 0 } }
     }
 
     private fun performInversePassage(directPassageRes: ArrayList<Array<Int>>): List<Double> {

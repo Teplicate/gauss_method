@@ -31,16 +31,35 @@ fun <T> Array<T>.swap(first: Int, second: Int) {
     this[second] = t
 }
 
+fun align(data: Array<Array<Int>>) {
+    var maxZ = data.mapIndexed { index, ints ->
+        val mx = ints.sliceArray(0 until data[0].size - 2).count { it == 0 }
+        Pair(index, mx)
+    }.filter { it.second != 0 }
+
+    if (maxZ.isEmpty())
+        return
+
+    val sorted = maxZ.sortedBy { it.second }.reversed()
+
+    for (i in sorted.size - 1 downTo 0) {
+        data.swap(data.size - i - 1, sorted[i].first)
+    }
+    data.size
+
+}
+
 class GaussLinearEquation {
     fun solve(data: Array<Array<Int>>): List<Double>? {
-        val copy = data.copyOf()
-        copy.forEachIndexed { index, array ->
-            if (array[0] == 0 && index != 0) {
-                if (index + 1 < array.size)
-                    data.swap(index, index + 1)
-            }
-        }
+//        val copy = data.copyOf()
+//        copy.forEachIndexed { index, array ->
+//            if (array[0] == 0 && index != 0) {
+//                if (index + 1 < array.size)
+//                    data.swap(index, index + 1)
+//            }
+//        }
 
+        align(data)
         val directPassageRes = performDirectPassage(data)
         directPassageRes.removeIf { it.all { s -> s == 0 } }
 

@@ -40,12 +40,13 @@ fun align(data: Array<Array<Int>>) {
     if (maxZ.isEmpty())
         return
 
-    val sorted = maxZ.sortedBy { it.second }.reversed()
+//    val sorted = maxZ.sortedBy { it.second }.reversed()
+    data.sortBy { it.sliceArray(0 until data[0].size - 2).count { s -> s == 0 } }
 
-    for (i in sorted.size - 1 downTo 0) {
-        data.swap(data.size - i - 1, sorted[i].first)
-    }
-    data.size
+//    for (i in sorted.size - 1 downTo 0) {
+//        data.swap(data.size - i - 1, sorted[i].first)
+//    }
+//    data.size
 
 }
 
@@ -62,21 +63,22 @@ class GaussLinearEquation {
         align(data)
         val directPassageRes = performDirectPassage(data)
         directPassageRes.removeIf { it.all { s -> s == 0 } }
-
-        if (checkIfSolvable(directPassageRes)) {
+        val dirP = directPassageRes.toTypedArray()
+        align(dirP)
+        if (checkIfSolvable(dirP)) {
             return null
         }
 
-        if (checkIfInfiniteSolutions(directPassageRes)) {
+        if (checkIfInfiniteSolutions(dirP)) {
             return emptyList()
         }
-        val vars = performInversePassage(directPassageRes)
+        val vars = performInversePassage(dirP)
 
         return vars
     }
 
 
-    private fun checkIfInfiniteSolutions(directPassageRes: List<Array<Int>>): Boolean {
+    private fun checkIfInfiniteSolutions(directPassageRes: Array<Array<Int>>): Boolean {
         val lastEquation = directPassageRes[directPassageRes.size - 1]
         val slice = lastEquation.sliceArray(0 until lastEquation.size - 1)
 
@@ -93,7 +95,7 @@ class GaussLinearEquation {
 //                || !s2.isEmpty()
     }
 
-    private fun checkIfSolvable(directPassageRes: ArrayList<Array<Int>>): Boolean {
+    private fun checkIfSolvable(directPassageRes: Array<Array<Int>>): Boolean {
         val s = directPassageRes.filter { it[directPassageRes[0].size - 1] == 0 }
         return s.any { arr ->
             val s = arr.sliceArray(0 until arr.size - 1)
@@ -103,7 +105,7 @@ class GaussLinearEquation {
             .any { it.all { it == 0 } }
     }
 
-    private fun performInversePassage(directPassageRes: ArrayList<Array<Int>>): List<Double> {
+    private fun performInversePassage(directPassageRes: Array<Array<Int>>): List<Double> {
         val map = HashMap<Int, Double>()
         val variables = ArrayList<Double>()
         var currentMemberIdx = directPassageRes[0].size - 2
@@ -181,17 +183,37 @@ class GaussLinearEquation {
             val line = sc.nextInt()
             val vars = sc.nextInt()
 
-            val list = ArrayList<Array<Int>>()
+            val list = ArrayList<Array<Double>>()
+            var maxFract = 1
 
             for (i in 0 until line) {
                 val array = Array(vars + 1)
                 {
-                    sc.nextInt()
+                    val d = sc.next().toDouble()
+                    val wh = (d - d.toInt().toDouble()).toString().length - 2
+//                    println("wh" + wh)
+                    if (wh > 0) {
+                        if (maxFract < wh)
+                            maxFract = wh
+                    }
+//                    println(maxFract)
+                    d
                 }
                 list.add(array)
             }
 
-            return list.toTypedArray()
+            sc.close()
+            val res = ArrayList<Array<Int>>(line)
+            list.forEachIndexed { idx, doubles ->
+                val lst = ArrayList<Int>()
+                doubles.forEachIndexed { indexD, d ->
+                    lst.add((d * (Math.pow(10.toDouble(), maxFract.toDouble()).toInt())).toInt())
+                }
+                res.add(lst.toTypedArray())
+            }
+
+
+            return res.toTypedArray()
         }
     }
 }
